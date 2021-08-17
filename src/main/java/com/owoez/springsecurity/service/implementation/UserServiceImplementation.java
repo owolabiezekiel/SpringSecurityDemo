@@ -8,9 +8,17 @@ import com.owoez.springsecurity.service.interfaces.UserService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -21,13 +29,31 @@ import java.util.List;
  * IDE: IntelliJ IDEA
  **/
 @Service @AllArgsConstructor @Transactional @Slf4j
-public class UserServiceImplementation implements UserService {
+public class UserServiceImplementation implements UserService, UserDetailsService {
   private final UserRepository userRepository;
   private final RoleRepository roleRepository;
+  private final PasswordEncoder passwordEncoder;
+
+  @Override
+  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    AppUser appUser = userRepository.findByUsername(username);
+    if(appUser == null){
+      log.error("User not found in the database");
+      throw new UsernameNotFoundException("User not found in the database");
+    }else{
+      log.info("User found in the database: {}", username);
+    }
+    Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
+    appUser.getRoles().forEach(role -> {
+      authorities.add(new SimpleGrantedAuthority(role.getName()));
+    });
+    return new User(appUser.getUsername(), appUser.getPassword(), authorities);
+  }
 
   @Override
   public AppUser saveUser(AppUser appUser) {
     log.info("Saving new user {} to database", appUser.getName());
+    appUser.setPassword(passwordEncoder.encode(appUser.getPassword()));
     return userRepository.save(appUser);
   }
 
