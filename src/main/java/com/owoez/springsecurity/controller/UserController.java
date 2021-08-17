@@ -3,12 +3,13 @@ package com.owoez.springsecurity.controller;
 import com.owoez.springsecurity.domain.AppUser;
 import com.owoez.springsecurity.service.interfaces.UserService;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 /**
@@ -27,5 +28,21 @@ public class UserController {
     return ResponseEntity.ok().body(userService.getUsers());
   }
 
+  @PostMapping("/save-user")
+  public ResponseEntity<AppUser> saveUser(@RequestBody AppUser appUser) {
+    URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/user/save-user").toUriString());
+    return ResponseEntity.created(uri).body(userService.saveUser(appUser));
+  }
 
+  @PostMapping("/add-role")
+  public ResponseEntity<?> addRoleToUser(@RequestBody RoleToUser roleToUser) {
+    userService.addRoleToUser(roleToUser.getUsername(), roleToUser.getRoleName());
+    return ResponseEntity.ok().build();
+  }
+}
+
+@Data
+class RoleToUser{
+  private String username;
+  private String roleName;
 }
