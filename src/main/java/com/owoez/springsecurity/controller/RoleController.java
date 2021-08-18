@@ -1,6 +1,5 @@
 package com.owoez.springsecurity.controller;
 
-import com.owoez.springsecurity.domain.AppUser;
 import com.owoez.springsecurity.domain.Role;
 import com.owoez.springsecurity.service.interfaces.RoleService;
 import lombok.RequiredArgsConstructor;
