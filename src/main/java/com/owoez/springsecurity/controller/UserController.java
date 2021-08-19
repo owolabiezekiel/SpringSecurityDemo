@@ -81,7 +81,6 @@ public class UserController {
         log.error("Error logging in: {}", e.getMessage());
         response.setHeader("error", e.getMessage());
         response.setStatus(FORBIDDEN.value());
-        //response.sendError(FORBIDDEN.value());
         Map<String, String> error = new HashMap<>();
         error.put("error", e.getMessage());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
